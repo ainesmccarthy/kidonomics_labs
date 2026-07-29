@@ -1,0 +1,167 @@
+---
+title: "Practice Problems 1.2 Key"
+format: html
+---
+
+Here are some practice problems to explore the penguins data set. First we need to load the penguin data set.
+
+```{r}
+library("palmerpenguins")
+
+penguins
+```
+
+1.  What are the mean and standard deviation of bill length of the penguins?
+
+```{r}
+# create a variable that contains only the column for bill length
+
+billLength<-penguins$bill_length_mm
+
+
+# mean 
+
+mean(billLength, na.rm=TRUE)
+
+# standard deviation
+
+sd(billLength, na.rm=TRUE)
+
+```
+
+2.  What are the mean and standard deviation of the body mass of the penguins?
+
+```{r}
+# create a variable that contains only the column for body mass
+
+bodyMass<-penguins$body_mass_g
+
+# mean
+
+mean(bodyMass, na.rm=TRUE)
+
+# standard deviation
+
+sd(bodyMass, na.rm = TRUE)
+
+```
+
+3.  What is the mean and median flipper length of the penguins?
+
+```{r}
+# create a variable that contains only the column for flipper length
+
+flipperLength<-penguins$flipper_length_mm
+
+# mean
+
+mean(flipperLength, na.rm=TRUE)
+
+# median
+
+median(flipperLength, na.rm=TRUE)
+```
+
+4.  How long are the largest flippers in this data set? How long is the shortest? (Hint: google how to find the minimum and maximum values in a vector). You can use the same variable that you created in 3!
+
+```{r}
+# longest flipper length
+
+max(flipperLength, na.rm=TRUE)
+
+# shortest flipper length
+
+min(flipperLength, na.rm=TRUE)
+
+```
+
+5.  What is the range of bill depths of penguins? (Range is the maximum value - minimum value)
+
+```{r}
+billDepth<-penguins$bill_depth_mm
+
+# deepest bill depth
+
+deepest<-max(billDepth, na.rm=TRUE)
+
+
+# shallowest bill depth
+
+shallowest<-min(billDepth, na.rm=TRUE)
+
+# range of bill depth
+
+range<-deepest - shallowest
+
+range
+
+```
+
+6.  How many species of penguins are in this data set (hint: there is a function to find distinct values in a vector)? List them using comments.
+
+```{r}
+# get unique values
+species<-unique(penguins$species)
+
+# count them
+length(species)
+
+```
+
+7.  Find the value for the longest bill in the data set. Assign it to the variable longestBill.
+
+```{r}
+
+longestBill<-max(penguins$bill_length_mm, na.rm=TRUE)
+
+longestBill
+
+```
+
+8.  Calculate the variance of body mass. (Hint: google variance in R)
+
+```{r}
+
+var(penguins$body_mass_g, na.rm=TRUE)
+
+
+```
+
+9.  Calculate the variance of flipper length.
+
+```{r}
+
+var(penguins$flipper_length_mm, na.rm=TRUE)
+
+```
+
+10. Calculate and compare the standard deviation of bill length and bill depth. Which has a larger standard deviation?
+
+```{r}
+# standard deviation of bill length
+
+sd(penguins$bill_length_mm, na.rm=TRUE)
+
+# standard deviation of bill depth
+
+sd(penguins$bill_depth_mm, na.rm=TRUE)
+
+# Which has a larger standard deviation? 
+
+#Answer: the standard deviation for bill length is larger.
+
+```
+
+11. Challenge: calculate the mean and standard deviation of bill length for gentoo penguins
+
+```{r}
+
+library(tidyverse)
+
+gentoo<-filter(.data=penguins, species=="Gentoo")
+
+mean(gentoo$bill_length_mm, na.rm=TRUE)
+
+sd(gentoo$bill_length_mm, na.rm=TRUE)
+
+```

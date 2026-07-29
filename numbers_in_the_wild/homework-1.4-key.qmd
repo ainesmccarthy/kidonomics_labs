@@ -1,0 +1,107 @@
+---
+title: "Homework Module 1.4 Key"
+output: html
+---
+
+### Your Name
+
+### Date
+
+In the questions below, use R code to answer questions. For any non-coding questions, give your answer as a comment.
+
+Run this code chunk first, to load the tidyverse, and make the weather station data available as the variable `stationData`:
+
+
+
+```{r}
+library(tidyverse)
+stationData<-read_csv("station-data.csv")
+
+```
+
+
+
+What is the difference between the data in the `day` and `running_day` columns? Illustrate the difference with a function we learned in class. If we're grouping by month, which would be more useful?
+
+```{r}
+
+# day refers to day in a year (e.g. 1-365), and running_day is day of the month
+
+unique(stationData$day)
+
+unique(stationData$running_day)
+
+```
+
+How is the time of day represented in the data. At what times of the day are measurements taken? Show the code used to arrive at the answer.
+
+```{r}
+
+# time is represented in military time.
+# measurements are taken every three hours, starting at midnight
+
+unique(stationData$hour)
+
+```
+
+Report the mean and standard deviation of the atmospheric pressure for every hour, of every day, of every month.
+
+```{r}
+
+stationData %>%
+  group_by(month, running_day, hour) %>%
+  summarize(meanPressure=mean(pressure, na.rm=TRUE), sdPressure=sd(pressure, na.rm=TRUE))
+
+
+```
+
+Report the mean and standard deviation of the temperature and wind speed at noon of every day of every month.
+
+```{r}
+
+stationData %>%
+  filter(hour=="1200") %>%
+  group_by(month, running_day) %>%
+  summarize(avgTemp=mean(temp, na.rm=TRUE),
+            sdTemp=sd(temp, na.rm=TRUE),
+            avgWindSpeed=mean(wind_speed, na.rm=TRUE),
+            sdWindSpeed=sd(wind_speed, na.rm=TRUE)
+            )
+
+
+
+```
+
+Find the coldest and warmest days of the year (in month, day format).
+
+```{r}
+
+#coldest
+stationData %>%
+  select(month, running_day, temp) %>%
+  arrange(temp) %>%
+  head(1)
+
+# August 29th
+
+#warmest
+stationData %>%
+  select(month, running_day, temp) %>%
+  arrange(desc(temp)) %>%
+  head(1)
+
+# December 9th
+
+```
+
+Add a column to the data frame that contains the temperature in Kelvins.
+
+```{r}
+# add 273 to celcius
+
+stationData <- stationData %>%
+  mutate(tempKelvin=temp+273)
+
+
+
+```

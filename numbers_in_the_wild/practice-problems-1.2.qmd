@@ -1,0 +1,110 @@
+---
+title: "Practice Problems 1.2"
+format: html
+---
+
+Here are some practice problems to explore the penguins data set. First we need to load the penguin data set.
+
+```{r}
+library("palmerpenguins")
+
+penguins
+```
+
+1.  What are the mean and standard deviation of bill length of the penguins?
+
+```{r}
+# create a variable that contains only the column for bill length
+
+
+
+# mean 
+
+# standard deviation
+
+```
+
+2.  What are the mean and standard deviation of the body mass of the penguins?
+
+```{r}
+# create a variable that contains only the column for body mass
+
+# mean
+
+# standard deviation
+
+
+```
+
+3.  What is the mean and median flipper length of the penguins?
+
+```{r}
+# create a variable that contains only the column for flipper length
+
+# mean
+
+# median
+
+```
+
+4.  How long are the largest flippers in this data set? How long is the shortest? (Hint: google how to find the minimum and maximum values in a vector). You can use the same variable that you created in 3!
+
+```{r}
+# longest flipper length
+
+# shortest flipper length
+
+```
+
+5.  What is the range of bill depths of penguins? (Range is the maximum value - minimum value)
+
+```{r}
+# deepest bill depth
+
+# shallowest bill depth
+
+# range of bill depth
+```
+
+6.  How many species of penguins are in this data set (hint: there is a function to find distinct values in a vector)? List them using comments.
+
+```{r}
+
+```
+
+7.  Find the value for the longest bill in the data set. Assign it to the variable longestBill.
+
+```{r}
+
+```
+
+8.  Calculate the variance of body mass. (Hint: google variance in R)
+
+```{r}
+
+```
+
+9.  Calculate the variance of flipper length.
+
+```{r}
+
+```
+
+10. Calculate and compare the standard deviation of bill length and bill depth. Which has a larger standard deviation?
+
+```{r}
+# standard deviation of bill length
+
+# standard deviation of bill depth
+
+# Which has a larger standard deviation? 
+```
+
+11. Challenge: calculate the mean and standard deviation of bill length for gentoo penguins
+
+```{r}
+
+
+
+
+```
