@@ -1,0 +1,193 @@
+---
+title: "Measuring Child Poverty Across Geographies"
+subtitle: "Economics of Children — Data Exercise"
+format:
+  html:
+    toc: true
+    code-fold: show
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+## Overview
+
+Child poverty is not a single number — it depends enormously on *where* you draw
+the line. The national child poverty rate hides huge differences between states;
+the state rate hides huge differences between counties; the county rate hides
+huge differences between neighborhoods.
+
+In this exercise you'll pull real data from the U.S. Census Bureau's American
+Community Survey (ACS) and measure child poverty at four geographic levels:
+**nation, state, county, and census tract**. Each part ends with a "Your turn"
+prompt — answer it in a text cell right below the code.
+
+We'll use the `tidycensus` package (Kyle Walker), which queries the Census
+Bureau's API and returns tidy data frames (and, if you ask for `geometry = TRUE`,
+map-ready shapefiles too).
+
+## Setup
+
+You need a free Census API key: <https://api.census.gov/data/key_signup.html>
+
+Run `census_api_key("YOUR KEY HERE", install = TRUE)` **once** in the R console
+(not in this document) — it saves the key to your `.Renviron` so you don't have
+to paste it into any file that might get shared.
+
+```{r}
+#| label: setup
+# install.packages(c("tidycensus", "tidyverse", "tigris", "scales"))
+library(tidycensus)
+library(tidyverse)
+library(tigris)
+library(scales)
+
+options(tigris_use_cache = TRUE)
+```
+
+## Part 1: The national child poverty rate
+
+ACS table `S1701` ("Poverty Status in the Past 12 Months") breaks poverty down
+by age. Variable `S1701_C03_002` is the **percent of children under 18 below
+the poverty line**; `S1701_C03_001` is the percent for the *total* population,
+which lets you compare child poverty to overall poverty.
+
+```{r}
+#| label: national
+us_child_poverty <- get_acs(
+  geography = "us",
+  table = "S1701",
+  year = 2022,
+  survey = "acs1"
+) |>
+  filter(variable == "S1701_C03_002")
+
+us_child_poverty
+```
+
+> **Your turn:** What was the U.S. child poverty rate in 2022? Pull
+> `S1701_C03_001` as well — is child poverty higher or lower than poverty for
+> the population overall? By how much?
+
+## Part 2: State-by-state comparison
+
+```{r}
+#| label: states
+state_child_poverty <- get_acs(
+  geography = "state",
+  table = "S1701",
+  year = 2022,
+  survey = "acs1"
+) |>
+  filter(variable == "S1701_C03_002") |>
+  arrange(desc(estimate))
+
+state_child_poverty |>
+  slice(1:10) |>
+  ggplot(aes(x = reorder(NAME, estimate), y = estimate)) +
+  geom_col(fill = "#1f548a") +
+  geom_errorbar(aes(ymin = estimate - moe, ymax = estimate + moe), width = 0.3) +
+  coord_flip() +
+  labs(
+    title = "10 States with the Highest Child Poverty Rates",
+    subtitle = "2022 American Community Survey, 1-Year Estimates",
+    x = NULL, y = "Child poverty rate (%)"
+  ) +
+  theme_minimal()
+```
+
+> **Your turn:** Now find the 10 states with the *lowest* child poverty rates
+> (try `slice_min()`, or flip the `arrange()`). What patterns do you notice —
+> region, rural vs. urban mix, anything you know about state policy?
+
+## Part 3: County-level variation within a state
+
+The `S1701` table above used 1-year estimates, which the Census Bureau only
+publishes for areas with 65,000+ people — too big a population floor for most
+counties. For small geographies we switch to the 5-year estimates
+(`survey = "acs5"`), which pool five years of data to be reliable at small
+scales, at the cost of being less current.
+
+```{r}
+#| label: oregon-counties
+oregon_counties <- get_acs(
+  geography = "county",
+  state = "OR",
+  table = "S1701",
+  year = 2022,
+  survey = "acs5",
+  geometry = TRUE
+) |>
+  filter(variable == "S1701_C03_002")
+
+oregon_counties |>
+  ggplot(aes(fill = estimate)) +
+  geom_sf(color = "white") +
+  scale_fill_viridis_c(option = "magma", direction = -1, labels = label_percent(scale = 1)) +
+  labs(
+    title = "Child Poverty Rate by County, Oregon",
+    subtitle = "2018-2022 American Community Survey, 5-Year Estimates",
+    fill = "Child poverty\nrate"
+  ) +
+  theme_void()
+```
+
+> **Your turn:** Which Oregon county has the highest child poverty rate? The
+> lowest? Look up one of the high-poverty counties — what do you know about
+> its economy or geography that might help explain the number? (Try swapping
+> `state = "OR"` for your home state.)
+
+## Part 4: Zooming in — census tracts within Multnomah County
+
+```{r}
+#| label: multnomah-tracts
+multnomah_tracts <- get_acs(
+  geography = "tract",
+  state = "OR",
+  county = "Multnomah",
+  table = "S1701",
+  year = 2022,
+  survey = "acs5",
+  geometry = TRUE
+) |>
+  filter(variable == "S1701_C03_002")
+
+multnomah_tracts |>
+  ggplot(aes(fill = estimate)) +
+  geom_sf(color = NA) +
+  scale_fill_viridis_c(option = "magma", direction = -1, labels = label_percent(scale = 1)) +
+  labs(
+    title = "Child Poverty Rate by Census Tract, Multnomah County",
+    subtitle = "2018-2022 American Community Survey, 5-Year Estimates",
+    fill = "Child poverty\nrate"
+  ) +
+  theme_void()
+```
+
+> **Your turn:** Compare this tract-level map to the county-level map in Part
+> 3. How much variation was "hidden" inside Multnomah County's single average?
+> What does that suggest about the limits of using large geographic units to
+> understand where poor children actually live?
+
+## Reflection
+
+Answer in a few sentences each:
+
+1. As you zoom from nation → state → county → tract, does child poverty look
+   more or less unequal? Why might that be?
+2. Every ACS estimate comes with a margin of error (the `moe` column). Why
+   does the margin of error tend to get *larger* as the geography gets
+   smaller? What does that mean for how confidently you can say one tract has
+   "higher" child poverty than a neighboring one?
+3. Pick one geographic level from this exercise. What policy would you
+   propose to reduce child poverty at that level, and why does the
+   geographic scale matter for that policy's design?
+
+## Notes
+
+- Data: U.S. Census Bureau, American Community Survey, Table S1701.
+- Package: `tidycensus` (Kyle Walker) — <https://walker-data.com/tidycensus/>
+- 1-year ACS estimates are more current but only exist for geographies with
+  65,000+ people; 5-year estimates cover every geography but are averaged
+  over five years, so they lag and smooth out recent change.
